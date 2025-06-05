@@ -17,8 +17,6 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 
 import praw
 
-
-
 reddit = praw.Reddit(
     client_id=client_id,
     client_secret=client_secret,
@@ -77,19 +75,70 @@ def process_post_sync(post):
     for comment in post.comments.list():
         if not looks_like_bf_guess(comment.body):
             continue
-        pred = extract_bf_prediction_from_comment(comment.body)
+        # pred = extract_bf_prediction_from_comment(comment.body) 
+        pred = 14
         if pred is not None:
             bfPredictions.append(pred)
 
-    if not bfPredictions or not is_image_url(post.url):
+    #empty array of 5
+    images = [None, None, None, None, None]
+
+    if "/gallery/" in post.url:
+        scraped_images = scrape_gallery_images('https://www.reddit.com' + post.permalink)
+
+        i = 0
+        for scraped_image in scraped_images:
+            if i<4: images[i] = scraped_image
+            i+=1
+    elif is_image_url(post.url): images[0] = post.url
+
+
+
+    if not bfPredictions or images == [None] * 5:
         return None
+    
+
 
     return {
         "title": post.title,
         "meanPrediction": round(statistics.mean(bfPredictions), 2),
         "bfPredictions": bfPredictions,
-        "image_url": post.url
+        "image_1": images[0],
+        "image_2": images[1],
+        "image_3": images[2],
+        "image_4": images[3],
+        "image_5": images[4],
     }
+
+import requests
+from bs4 import BeautifulSoup
+
+# for multiple image posts where image url isn't explicitly given
+def scrape_gallery_images(reddit_url: str) -> dict:
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    res = requests.get(reddit_url, headers=headers)
+    if res.status_code != 200:
+        print(f"Failed to fetch page: {reddit_url}")
+        return []
+
+    soup = BeautifulSoup(res.text, "html.parser")
+
+    # Select all <img> tags with the given class
+    image_tags = soup.select("img.media-lightbox-img")
+
+    images =[]
+    for i, img in enumerate(image_tags[:5], start=1):
+        src = img.get("src")
+        lazysrc = img.get("data-lazy-src")
+        if src:
+            images.append(src)
+        elif lazysrc:
+            images.append(lazysrc)
+
+    return images
 
 @app.get("/auth/reddit/getPosts")
 async def get_reddit_posts():
@@ -98,7 +147,7 @@ async def get_reddit_posts():
 
     executor = ThreadPoolExecutor(max_workers=5)
 
-    for i, post in enumerate(subreddit.hot(limit=999)):
+    for i, post in enumerate(subreddit.hot(limit=20)):
         if post.stickied:
             continue
 
