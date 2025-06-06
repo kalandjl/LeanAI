@@ -15,9 +15,9 @@ client_id = os.getenv("REDDIT_CLIENT_ID")
 client_secret = os.getenv("REDDIT_CLIENT_SECRET")
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
-import praw
+import asyncpraw
 
-reddit = praw.Reddit(
+reddit = asyncpraw.Reddit(
     client_id=client_id,
     client_secret=client_secret,
     user_agent="LeanAIApp/0.1 by mythic_lisp",
@@ -29,31 +29,63 @@ client = openai.OpenAI(api_key=openai_api_key)
 # FastAPI app
 app = FastAPI()
 
-def extract_bf_prediction_from_comment(comment: str) -> float | None:
+import ast
+
+
+def extract_bf_prediction_from_comments(comments):
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You extract body fat % predictions from Reddit comments. If no prediction is made, respond with 'null'. Only include a number if it is a body fat percentage guess."},
-                {"role": "user", "content": f"Comment: \"{comment}\"\nWhat is the body fat percentage guess? Respond only with the number or 'null'."}
+                {
+                    "role": "system",
+                    "content": (
+                        "You extract body fat % predictions from a Python array of Reddit comments. "
+                        "Return an array of the predictions in integer form. Ignore arbitrary numbers. "
+                        "If the user gives a range (like 12-15%), return the mean. "
+                        "Output only a valid Python list of integers, like [12, 18, 22]."
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": f"Comments: {comments}\nWhat are the bodyfat percentage guesses in this list? Respond only with the list, no text."
+                }
             ],
-            max_tokens=10,
+            max_tokens=100,
             temperature=0.2,
         )
-        text = response.choices[0].message.content.strip().lower()
-        if "null" in text:
-            return None
-        match = re.search(r"\d{1,2}", text)
-        if match:
-            val = int(match.group())
-            return val if 1 <= val <= 50 else None
+
+        text = response.choices[0].message.content.strip()
+
+        # Try to safely parse the list using ast.literal_eval
+        parsed = ast.literal_eval(text)
+
+        # Ensure it's a list of integers in range 1–50
+        if isinstance(parsed, list):
+            return [int(x) for x in parsed if isinstance(x, int) and 1 <= x <= 50]
+        else:
+            return []
+
     except Exception as e:
         print(f"OpenAI error: {e}")
-    return None
+        return []
 
 def is_image_url(url: str) -> bool:
     return any(url.lower().endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".webp"])
 
+def median(numbers):
+    if not numbers:
+        return None  # or raise an error
+
+    numbers = sorted(numbers)
+    n = len(numbers)
+    mid = n // 2
+
+    if n % 2 == 0:
+        return (numbers[mid - 1] + numbers[mid]) / 2
+    else:
+        return numbers[mid]
+    
 import re
 
 def looks_like_bf_guess(text: str) -> bool:
@@ -69,16 +101,16 @@ import asyncio
 
 # This will be run in a thread
 def process_post_sync(post):
+    
     post.comments.replace_more(limit=None)
     bfPredictions = []
 
+    possiblePredComments = []
+
     for comment in post.comments.list():
-        if not looks_like_bf_guess(comment.body):
-            continue
-        # pred = extract_bf_prediction_from_comment(comment.body) 
-        pred = 14
-        if pred is not None:
-            bfPredictions.append(pred)
+        if looks_like_bf_guess(comment.body): possiblePredComments.append(comment.body)
+
+    bfPredictions = extract_bf_prediction_from_comments(possiblePredComments)
 
     #empty array of 5
     images = [None, None, None, None, None]
@@ -94,14 +126,16 @@ def process_post_sync(post):
 
 
 
-    if not bfPredictions or images == [None] * 5:
+    if len(bfPredictions) == 0 or images == [None] * 5:
         return None
     
 
 
     return {
         "title": post.title,
+        "url": post.url,
         "meanPrediction": round(statistics.mean(bfPredictions), 2),
+        "medianPrediction": median(bfPredictions),
         "bfPredictions": bfPredictions,
         "image_1": images[0],
         "image_2": images[1],
@@ -143,15 +177,20 @@ def scrape_gallery_images(reddit_url: str) -> dict:
 @app.get("/auth/reddit/getPosts")
 async def get_reddit_posts():
     posts = []
-    subreddit = reddit.subreddit("guessmybf")
+    subreddit = await reddit.subreddit("guessmybf")
 
     executor = ThreadPoolExecutor(max_workers=5)
 
-    for i, post in enumerate(subreddit.hot(limit=20)):
+    i = 0  # Track post count manually
+    async for post in subreddit.top(time_filter="all", limit=999):
+
+        await post.load()
+
         if post.stickied:
             continue
 
-        print(f"Processing post {i + 1}...")
+        i += 1
+        print(f"Processing post {i}...")
 
         try:
             result = await asyncio.wait_for(
@@ -160,14 +199,14 @@ async def get_reddit_posts():
             )
             if result:
                 posts.append(result)
-                print(f"✅ Post {i + 1}: {result['title']}")
+                print(f"✅ Post {i}: {result['title']}")
             else:
-                print(f"⚠️ Skipped post {i + 1}: no predictions or no image")
+                print(f"⚠️ Skipped post {i}: no predictions or no image")
 
         except asyncio.TimeoutError:
-            print(f"⏱️ Timeout on post {i + 1}: {post.title}")
+            print(f"⏱️ Timeout on post {i}: {post.title}")
         except Exception as e:
-            print(f"❌ Error on post {i + 1}: {e}")
+            print(f"❌ Error on post {i}: {e}")
 
     df = pd.DataFrame(posts)
     df.to_csv("guessmybf_dataset.csv", index=False)
