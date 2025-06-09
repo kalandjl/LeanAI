@@ -1,61 +1,60 @@
-
 from fastai.vision.all import *
-import torch
+import gradio as gr
+from PIL import Image
+from pathlib import Path
 
-def load_model_safely(model_path):
-    try:
-        # Try the standard approach first
-        model = load_learner(model_path)
-        return model
-    except Exception as e:
-        print(f"Standard loading failed: {e}")
-        
-        try:
-            # Force CPU loading
-            model = load_learner(model_path, cpu=True)
-            return model
-        except Exception as e:
-            print(f"CPU loading failed: {e}")
-            
-            try:
-                # Try with explicit device mapping
-                import pickle
-                with open(model_path, 'rb') as f:
-                    model = pickle.load(f)
-                return model
-            except Exception as e:
-                print(f"All loading methods failed: {e}")
-                return None
+path = Path('model.pkl')
 
-# Use it in your app
-model = load_model_safely("model.pkl")
+print(f"Full path: {path.absolute()}")
+import zipfile
 
-if model is None:
-    print("Could not load model!")
+try:
+    with zipfile.ZipFile(path, 'r') as zip_file:
+        print("File is a valid ZIP archive")
+        print("Contents:", zip_file.namelist())
+except zipfile.BadZipFile:
+    print("File is corrupted or not a valid ZIP archive")
+except FileNotFoundError:
+    print("File not found")
+          
+
+model = load_learner(path)
+
+bf,_,probs = model.predict(PILImage.create('images/0_image_1.jpg'))
+print(f"Bodyfat prediction: {probs[0]:.4f}")
 
 
-pil_img = PILImage.create('0_image_1.jpg')
-test_dl = model.dls.test_dl([pil_img])
-preds = model.get_preds(dl=test_dl)
-
-
-# Prediction function
 def predict_image(img):
+
     if img is None:
-        return "No image received."
-
+        return "Please upload an image first"
+    
     try:
+        print(f"Input type: {type(img)}")
+        
+        # Now convert to FastAI PILImage
         pil_img = PILImage.create(img)
-        _, _, probs = model.predict(pil_img)
-        return round(float(probs[0]), 2)
-    except Exception as e:
-        return f"Error: {str(e)}"
 
-# Launch Gradio app
-gr.Interface(
-    fn=predict_image,
-    inputs=gr.Image(type="pil"),
-    outputs=gr.Number(label="Predicted Value"),
-    title="Image Regression (FastAI)",
-    description="Upload an image to get a predicted value."
-).launch(share=True)
+        print(pil_img)
+        
+        bf, _, probs = model.predict(pil_img)
+
+        bf,_,probs = model.predict(PILImage.create('images/0_image_1.jpg'))
+
+        
+        return float(probs[0])
+        
+    except Exception as e:
+        return print(f"error: {e}")
+
+with gr.Blocks() as demo:
+    gr.Markdown("# Body Fat Prediction")
+    
+    with gr.Row():
+        image_input = gr.Image(label="Upload Image")
+        output = gr.Number(label="Predicted Value")
+    
+    predict_btn = gr.Button("Predict")
+    predict_btn.click(predict_image, inputs=image_input, outputs=output)
+
+demo.launch(share=True)
