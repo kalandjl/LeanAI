@@ -174,7 +174,7 @@ def scrape_gallery_images(reddit_url: str) -> dict:
 
     return images
 
-@app.get("/auth/reddit/getPosts")
+@app.get("/guessmybf")
 async def get_reddit_posts():
     posts = []
     subreddit = await reddit.subreddit("guessmybf")
@@ -182,16 +182,60 @@ async def get_reddit_posts():
     executor = ThreadPoolExecutor(max_workers=5)
 
     i = 0  # Track post count manually
-    async for post in subreddit.top(time_filter="all", limit=999):
+    async for post in subreddit.top(time_filter="all", limit=1000):
+
+
+
+        i += 1
+        print(f"Processing post {i}...")
 
         await post.load()
 
         if post.stickied:
             continue
+        
+        try:
+            result = await asyncio.wait_for(
+                asyncio.get_event_loop().run_in_executor(executor, process_post_sync, post),
+                timeout=15  # seconds
+            )
+            if result:
+                posts.append(result)
+                print(f"✅ Post {i}: {result['title']}")
+            else:
+                print(f"⚠️ Skipped post {i}: no predictions or no image")
+
+        except asyncio.TimeoutError:
+            print(f"⏱️ Timeout on post {i}: {post.title}")
+        except Exception as e:
+            print(f"❌ Error on post {i}: {e}")
+
+    df = pd.DataFrame(posts)
+    df.to_csv("guessmybf_dataset.csv", index=False)
+
+    return {"posts": posts}
+
+
+
+@app.get("/bulkorcut")
+async def get_reddit_posts():
+    posts = []
+    subreddit = await reddit.subreddit("bulkorcut")
+
+    executor = ThreadPoolExecutor(max_workers=5)
+
+    i = 0  # Track post count manually
+    async for post in subreddit.search("body fat", time_filter="all", limit=1000):
+
 
         i += 1
         print(f"Processing post {i}...")
 
+        await post.load()
+
+        if post.stickied:
+            continue
+        
         try:
             result = await asyncio.wait_for(
                 asyncio.get_event_loop().run_in_executor(executor, process_post_sync, post),
