@@ -1,27 +1,28 @@
-from fastai.vision.all import *
-import gradio as gr
-from PIL import Image
+import os
 from pathlib import Path
 
 path = Path('model.pkl')
 
+
+print(f"File exists: {path.exists()}")
+print(f"File size: {path.stat().st_size if path.exists() else 'N/A'} bytes")
 print(f"Full path: {path.absolute()}")
 import zipfile
 
 try:
     with zipfile.ZipFile(path, 'r') as zip_file:
         print("File is a valid ZIP archive")
-        print("Contents:", zip_file.namelist())
 except zipfile.BadZipFile:
     print("File is corrupted or not a valid ZIP archive")
 except FileNotFoundError:
     print("File not found")
-          
 
-model = load_learner(path)
+from fastai.vision.all import *
+model = load_learner("model.pkl")
 
-bf,_,probs = model.predict(PILImage.create('images/0_image_1.jpg'))
-print(f"Bodyfat prediction: {probs[0]:.4f}")
+def preprocess_img(pre_img):
+    img = Image.open('images/0_image_1.jpg').convert('RGB')
+    return transform(img).unsqueeze(0)
 
 
 def predict_image(img):
@@ -31,21 +32,21 @@ def predict_image(img):
     
     try:
         print(f"Input type: {type(img)}")
-        
-        # Now convert to FastAI PILImage
+
         pil_img = PILImage.create(img)
 
-        print(pil_img)
         
-        bf, _, probs = model.predict(pil_img)
-
-        bf,_,probs = model.predict(PILImage.create('images/0_image_1.jpg'))
-
+        bf, _, preds = model.predict(pil_img)
         
-        return float(probs[0])
+        return float(preds[0])
         
     except Exception as e:
         return print(f"error: {e}")
+
+pred = predict_image('images/0_image_1.jpg')               
+print(pred)
+
+import gradio as gr
 
 with gr.Blocks() as demo:
     gr.Markdown("# Body Fat Prediction")
