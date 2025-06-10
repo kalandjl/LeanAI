@@ -2,3 +2,4 @@ core/process.env
 core/process.env
 core/.env
 core/images
+core/model.pkl
