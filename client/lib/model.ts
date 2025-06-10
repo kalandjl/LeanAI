@@ -14,7 +14,7 @@ export const predictImage = async (img: File) => {
       const imgData = await fileToDataUri(img);
 
       const response = await fetch(
-        "https://7a9f-2604-3d08-977a-a700-ddd8-a1f7-123c-7436.ngrok-free.app",
+        "http://0.0.0.0:7866/model/predict",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
