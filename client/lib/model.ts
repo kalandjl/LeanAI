@@ -14,7 +14,7 @@ export const predictImage = async (img: File) => {
       const imgData = await fileToDataUri(img);
 
       const response = await fetch(
-        "http://0.0.0.0:7866/model/predict",
+        "http://0.0.0.0:8144/model/predict",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
