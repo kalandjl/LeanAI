@@ -4,3 +4,4 @@ core/.env
 core/images
 core/model.pkl
 core/cropped_images/
+*.pkl
