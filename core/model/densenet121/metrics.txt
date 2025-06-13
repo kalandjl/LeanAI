@@ -1,4 +1,4 @@
 Final epoch metrics:
-train_loss: 11.118690
-valid_loss: 3.334470
-_rmse: 2.488306
+valid_loss: 11.567939
+mae: 2.464035
+rmse: 3.311647
