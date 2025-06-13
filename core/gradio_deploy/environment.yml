@@ -1,0 +1,16 @@
+name: base # You can name this environment anything, but 'base' is common for simple setups
+channels:
+  - fastai
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10.12 # Specify your exact Python 3.10 version
+  - pytorch=2.0.1
+  - torchvision=0.15.2
+  - numpy=1.23.5
+  - pillow=9.5.0 # Pillow is often installed as a conda package
+  - pip
+  - pip:
+    - fastai==2.7.12 # Fastai can often be installed via pip, even in conda env
+    - gradio==4.36.1 # Gradio is typically pip-installed

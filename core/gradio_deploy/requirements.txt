@@ -1,0 +1,6 @@
+fastai
+torch
+torchvision
+Pillow
+numpy
+gradio
