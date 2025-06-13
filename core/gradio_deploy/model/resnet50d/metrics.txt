@@ -1,0 +1,4 @@
+Final epoch metrics:
+valid_loss: 9.893024
+mae: 2.262666
+rmse: 2.996930
