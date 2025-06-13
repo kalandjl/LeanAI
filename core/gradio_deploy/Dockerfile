@@ -1,37 +1,24 @@
-# Use a public Miniconda base image from ContinuumIO
-# This is generally more reliable for public access than 'conda/anaconda3'
-FROM continuumio/anaconda3:latest 
-# 'latest' will get the most recent stable Python 3.x
+# Use Miniconda3 base image with Python 3.10
+FROM continuumio/miniconda3
 
-# Set the working directory inside the container
+# Set working directory inside container
 WORKDIR /app
 
-# Copy the environment.yml file
+# Copy environment.yml (make sure python=3.10 is set correctly inside)
 COPY environment.yml .
 
-# Create and activate the conda environment, then install dependencies
-# 'conda env update' reads the environment.yml and creates/updates the environment
-# Using --file to explicitly specify the environment file
-RUN conda env update --file environment.yml
+# Create the conda environment and clean cache to reduce image size
+RUN conda env create -f environment.yml && conda clean -afy
 
-# Activate the environment for subsequent commands
-# This ensures that 'python' and 'pip' commands use the environment's binaries
-# The environment created by 'conda env update' will be named as specified in environment.yml (e.g., 'base')
-SHELL ["conda", "run", "-n", "base", "/bin/bash", "-c"]
+# Make sure the environment is activated when running commands
+SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
 
-# Copy your main application file
-COPY app.py /app/app.py
+# Copy your application files and model directory
+COPY app.py .
+COPY model/ ./model/
 
-# Create the models directory before copying contents into it
-RUN mkdir -p /app/model/
-
-# Copy your trained FastAI model directories (e.g., model_name/model.pkl, model_name/metrics.txt)
-# This will copy all subfolders and their contents from your local 'models' directory
-# into the '/app/models/' directory inside the container.
-COPY model/ /app/model/
-
-# Expose the port that your Gradio application will listen on
+# Expose your app port (e.g., for Gradio)
 EXPOSE 7860
 
-# Command to run the Gradio application
-CMD ["conda", "run", "-n", "base", "python", "app.py"]
+# Run your app inside the conda env
+CMD ["python", "app.py"]
