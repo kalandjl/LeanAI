@@ -103,5 +103,5 @@ with gr.Blocks() as demo:
     predict_btn = gr.Button("Predict")
     predict_btn.click(ensemble_model.predict, inputs=image_input, outputs=output)
 
-print("Preparing gradio servers...", flush=True)
-demo.launch(server_name="0.0.0.0", server_port=7860)
+print("Preparing gradio server...", flush=True)
+demo.launch(server_name="0.0.0.0", server_port=7860, debug=True)
