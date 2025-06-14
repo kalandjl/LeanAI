@@ -13,16 +13,11 @@ export const predictImage = async (img: File) => {
     try {
       const imgData = await fileToDataUri(img);
 
-      const response = await fetch(
-        "http://0.0.0.0:8144/model/predict",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            data: [imgData],
-          }),
-        }
-      );
+      const response = await fetch('http://localhost:4000/api/predict/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: [/* your input data here */] })
+      })
 
       const json = await response.json();
       return json
