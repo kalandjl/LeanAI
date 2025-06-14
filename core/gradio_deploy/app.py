@@ -19,17 +19,20 @@ model_paths = [
     'efficientformerv2_s0',          
 ]
 
+print(f"{len(model_paths)} models ready for loading")
+
 learners = {}
 
 for model_path in model_paths:
+    try:
+        print(f"Loading model {model_path}...", flush=True)
+        full_path = f"model/{model_path}/model.pkl"
+        learn = load_learner(full_path)
+        learners[model_path] = learn
+        print(f"Completed loading model {model_path}", flush=True)
+    except Exception as e:
+        print(f"[Error] Loading model {model_path} failed: {e}", flush=True)
 
-    print(f"Loading model {model_path}")
-
-    full_path = f"model/{model_path}/model.pkl"
-    learn = load_learner(full_path)
-    learners[model_path] = learn
-
-    print(f"Completing loading model {model_path}")
 
 
 print(f"Learners loaded - length: {len(learners)}")
@@ -38,6 +41,8 @@ import json
 # Load JSON from file
 with open('model/ensemble_weights.json', 'r') as f:
     model_weights = json.load(f)
+
+print(f"Ensemble weights loaded: {model_weights}", flush=True)
 
 class LeanAIEnsembleModel:
     def __init__(self, learners: dict, model_weights: dict):
@@ -84,6 +89,8 @@ class LeanAIEnsembleModel:
 
 ensemble_model = LeanAIEnsembleModel(learners, model_weights)
 
+print("Ensemble model compiled", flush=True)
+
 import gradio as gr
 
 with gr.Blocks() as demo:
@@ -96,4 +103,5 @@ with gr.Blocks() as demo:
     predict_btn = gr.Button("Predict")
     predict_btn.click(ensemble_model.predict, inputs=image_input, outputs=output)
 
+print("Preparing gradio servers...", flush=True)
 demo.launch(server_name="0.0.0.0", server_port=7860)
