@@ -23,9 +23,14 @@ learners = {}
 
 for model_path in model_paths:
 
+    print(f"Loading model {model_path}")
+
     full_path = f"model/{model_path}/model.pkl"
     learn = load_learner(full_path)
     learners[model_path] = learn
+
+    print(f"Completing loading model {model_path}")
+
 
 print(f"Learners loaded - length: {len(learners)}")
 import json
