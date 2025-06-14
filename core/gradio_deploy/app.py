@@ -27,6 +27,7 @@ for model_path in model_paths:
     learn = load_learner(full_path)
     learners[model_path] = learn
 
+print(f"Learners loaded - length: {len(learners)}")
 import json
 
 # Load JSON from file
@@ -90,4 +91,4 @@ with gr.Blocks() as demo:
     predict_btn = gr.Button("Predict")
     predict_btn.click(ensemble_model.predict, inputs=image_input, outputs=output)
 
-demo.launch(share=True)
+demo.launch(server_name="0.0.0.0", server_port=7860)

@@ -1,15 +1,13 @@
 name: leanai
 channels:
-  - defaults
   - conda-forge
+  - defaults
 dependencies:
   - python=3.10
   - fastai
   - pandas
-  - timm
   - pip
   - pip:
-      - fastai
-      - pandas
+      - timm
       - gradio
       - scikit-learn
