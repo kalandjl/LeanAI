@@ -1,24 +1,20 @@
-# Use Miniconda3 base image with Python 3.10
 FROM continuumio/miniconda3
 
-# Set working directory inside container
 WORKDIR /app
 
-# Copy environment.yml (make sure python=3.10 is set correctly inside)
 COPY environment.yml .
 
-# Create the conda environment and clean cache to reduce image size
-RUN conda env create -f environment.yml && conda clean -afy
+# Create conda env
+RUN conda env create -f environment.yml
 
-# Make sure the environment is activated when running commands
-SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
+# Make RUN commands use the new environment:
+SHELL ["conda", "run", "-n", "leanai", "/bin/bash", "-c"]
 
-# Copy your application files and model directory
-COPY app.py .
-COPY model/ ./model/
+# Test fastai is installed (optional debug)
+RUN python -c "import fastai; print(f'fastai version: {fastai.__version__}')"
 
-# Expose your app port (e.g., for Gradio)
+COPY . /app
+
 EXPOSE 7860
 
-# Run your app inside the conda env
-CMD ["python", "app.py"]
+CMD ["conda", "run", "--no-capture-output", "-n", "leanai", "python", "app.py"]
