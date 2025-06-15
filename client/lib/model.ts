@@ -20,6 +20,7 @@ export const predictImage = async (img: File) => {
       })
 
       const json = await response.json();
+      console.log(json)
       return json
     } catch (error) {
       alert("Error during prediction: " + error);
