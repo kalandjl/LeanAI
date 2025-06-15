@@ -1,1 +1,0 @@
-npx tsc ./src/proxy.ts -outDir ./dist --watch
