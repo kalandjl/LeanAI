@@ -14,6 +14,8 @@ model.eval()
 # FastAPI app
 app = FastAPI()
 
+port=8000
+
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
