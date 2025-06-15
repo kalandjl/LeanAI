@@ -11,14 +11,14 @@ import re
 model = torch.jit.load("model/torch_ensemble.pt", map_location="cpu")
 model.eval()
 
-# Create FastAPI app
+# FastAPI app
 app = FastAPI()
 
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # or specify your frontend domain
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,7 +32,7 @@ transform = transforms.Compose([
 
 # Define request body
 class ImageData(BaseModel):
-    data_uri: str  # expects a full data URI (e.g. "data:image/jpeg;base64,...")
+    data_uri: str
 
 # Helper: Decode Data URI to PIL Image
 def decode_data_uri_to_image(data_uri: str) -> Image.Image:
