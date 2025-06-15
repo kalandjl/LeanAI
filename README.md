@@ -6,6 +6,8 @@ LeanAI is a machine learning powered web app which aids anyone in achieving thei
 
 ### Model Architecture
 The core LeanAI model is a pytorch ensemble of 11 different image regression models: 
+
+
     - resnet50
     - efficientnet_b3
     - densenet121
