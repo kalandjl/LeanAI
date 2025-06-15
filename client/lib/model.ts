@@ -13,10 +13,10 @@ export const predictImage = async (img: File) => {
     try {
       const imgData = await fileToDataUri(img);
 
-      const response = await fetch('http://localhost:4000/api/predict/', {
+      const response = await fetch('https://kalandjl.huggingface.co/spaces/leanai-api/predict/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: [/* your input data here */] })
+        body: JSON.stringify({ data: imgData})
       })
 
       const json = await response.json();

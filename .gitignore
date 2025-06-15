@@ -7,3 +7,4 @@ core/cropped_images/
 core/raw_images/
 server/node_modules
 *.pkl
+*.pt
