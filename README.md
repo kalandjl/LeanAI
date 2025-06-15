@@ -22,7 +22,7 @@ The core LeanAI model is a pytorch ensemble of 11 different image regression mod
     - maxvit_tiny_rw_224            
     - efficientformerv2_s0
 
-All of these models were trained on public body fat estimate data and varying augmentation datablocks. Fastai's python library was used to streamline this process. 
+All of these models were trained on public body fat estimation data and varying augmentation datablocks. Fastai's python library was used to streamline this process. See more in the /core folder.
 
 ### Front end
 Simple Next.JS frontend which access hugging faces repo api. Use bellow commands to run:
