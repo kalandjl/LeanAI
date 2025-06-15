@@ -6,9 +6,20 @@ from PIL import Image
 import io
 import base64
 import re
+import zipfile
+
+with zipfile.ZipFile('torch_ensemble.pt.zip') as z:
+    with z.open('torch_ensemble.pt') as f:
+        buffer = io.BytesIO(f.read())
+        model = torch.jit.load(buffer)
+
 
 # Load TorchScript model
-model = torch.jit.load("torch_ensemble.pt", map_location="cpu")
+with zipfile.ZipFile('torch_ensemble.pt.zip') as z:
+    with z.open('torch_ensemble.pt') as f:
+        buffer = io.BytesIO(f.read())
+        model = torch.jit.load(buffer)
+
 model.eval()
 
 # FastAPI app

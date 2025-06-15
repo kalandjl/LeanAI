@@ -8,4 +8,5 @@ core/raw_images/
 server/node_modules
 *.pkl
 *.pt
+*.pt.zip
 *.env
