@@ -10,11 +10,9 @@ The core LeanAI model is a pytorch ensemble of 11 different image regression mod
     - efficientnet_b3
     - densenet121
     - resnet34
-    - mobilenetv3_large_100
-    - mobilenetv3_large_100_v2
-    - mobilenetv3_large_100_v3
+    - mobilenetv3_large_100 
     - efficientnet_b0
-    - resnet50d                    
+    - resnet50d                 
     - mobilenetv3_large_100    
     - densenet121              
     - regnety_040               
