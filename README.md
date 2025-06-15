@@ -26,6 +26,6 @@ All of these models were trained on public body fat estimate data and varying au
 
 ### Front end
 Simple Next.JS frontend which access hugging faces repo api. Use bellow commands to run:
-` 
+```
 npm run dev
-`
+```
