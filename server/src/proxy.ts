@@ -5,32 +5,31 @@ const express = require('express');
 
 const app = express();
 const PORT = 4000;
+import { Client } from "@gradio/client";
 
-const targetUrl = 'https://huggingface.co/spaces/kalandjl/LeanAI-gradio/'
 
+async function run() {
+
+	const app = await Client.connect("https://huggingfaceh4-falcon-chat.hf.space/");
+	const result = await app.predict(0, [		
+				"Howdy!", // string  in 'Click on any example and press Enter in the input textbox!' Dataset component
+	]);
+
+	return result?.data
+}
+
+run();
 
 app.use(cors()); // Allow all origins for simplicity; customize as needed
 
 app.post('/api/predict', async (req: Request, res: Response) => {
   try {
-    const response = await fetch(targetUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(req.body),
-    });
 
-    const text = await response.text();
-    console.log('Raw response:', text);  // <-- Log raw response to debug
+    const data = await run()
 
-    // Try parsing JSON only if content-type is JSON
-    if (response.headers.get('content-type')?.includes('application/json')) {
-      const data = JSON.parse(text);
-      res.json(data);
-    } else {
-      res.status(500).send('Expected JSON but got HTML or other content');
-    }
+    console.log(data)
+
+    res.send(200)
   } catch (e) {
     console.error('Error proxying request:', e);
     res.status(500).send('Proxy error');

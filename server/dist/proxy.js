@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -34,41 +35,50 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var _this = this;
+Object.defineProperty(exports, "__esModule", { value: true });
 var cors = require('cors');
 var express = require('express');
 var app = express();
 var PORT = 4000;
+var client_1 = require("@gradio/client");
+function run() {
+    return __awaiter(this, void 0, void 0, function () {
+        var app, result;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, client_1.Client.connect("https://huggingfaceh4-falcon-chat.hf.space/")];
+                case 1:
+                    app = _a.sent();
+                    return [4 /*yield*/, app.predict(0, [
+                            "Howdy!", // string  in 'Click on any example and press Enter in the input textbox!' Dataset component
+                        ])];
+                case 2:
+                    result = _a.sent();
+                    return [2 /*return*/, result === null || result === void 0 ? void 0 : result.data];
+            }
+        });
+    });
+}
+run();
 app.use(cors()); // Allow all origins for simplicity; customize as needed
-app.use(express.json({ limit: '10mb' }));
-// Proxy endpoint
-app.post('/api/predict', function (req, res) { return __awaiter(_this, void 0, void 0, function () {
-    var hfResponse, data, error_1;
+app.post('/api/predict', function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+    var data, e_1;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
-                _a.trys.push([0, 3, , 4]);
-                return [4 /*yield*/, fetch('https://huggingface.co/spaces/kalandjl/LeanAI-gradio/api/predict/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            // Add Authorization header here if your HF space requires authentication
-                        },
-                        body: JSON.stringify(req.body),
-                    })];
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, run()];
             case 1:
-                hfResponse = _a.sent();
-                return [4 /*yield*/, hfResponse.json()];
-            case 2:
                 data = _a.sent();
-                res.json(data);
-                return [3 /*break*/, 4];
-            case 3:
-                error_1 = _a.sent();
-                console.error('Error proxying request:', error_1);
-                res.status(500).json({ error: 'Proxy error' });
-                return [3 /*break*/, 4];
-            case 4: return [2 /*return*/];
+                console.log(data);
+                res.send(200);
+                return [3 /*break*/, 3];
+            case 2:
+                e_1 = _a.sent();
+                console.error('Error proxying request:', e_1);
+                res.status(500).send('Proxy error');
+                return [3 /*break*/, 3];
+            case 3: return [2 /*return*/];
         }
     });
 }); });
