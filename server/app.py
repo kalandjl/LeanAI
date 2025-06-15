@@ -8,7 +8,7 @@ import base64
 import re
 
 # Load TorchScript model
-model = torch.jit.load("model/torch_ensemble.pt", map_location="cpu")
+model = torch.jit.load("torch_ensemble.pt", map_location="cpu")
 model.eval()
 
 # FastAPI app
