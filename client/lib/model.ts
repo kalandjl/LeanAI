@@ -10,10 +10,14 @@
 
 export const predictImage = async (img: File) => {
 
+    const devLink = 'http://localhost:8000/predict'
+    const productionLink = ""
+    if (!process.env.NEXT_PUBLIC_ENV) return
+
     try {
       const imgData = await fileToDataUri(img);
  
-      const response = await fetch('http://localhost:8000/predict', {
+      const response = await fetch(process.env.NEXT_PUBLIC_ENV === "development" ? devLink : productionLink, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data_uri: imgData})
