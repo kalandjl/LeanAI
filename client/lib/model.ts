@@ -12,7 +12,7 @@ export const predictImage = async (img: File) => {
 
     try {
       const imgData = await fileToDataUri(img);
-
+ 
       const response = await fetch('http://localhost:4000/api/predict', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
