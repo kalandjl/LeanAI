@@ -8,7 +8,7 @@ import base64
 import re
 import zipfile
 
-model = torch.jit.load('torch_ensemble.pt.')
+model = torch.jit.load('torch_ensemble.pt')
 
 
 # Load TorchScript model
