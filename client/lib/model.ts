@@ -10,14 +10,14 @@
 
 export const predictImage = async (img: File) => {
 
-    const devLink = 'http://localhost:8000/predict'
+    const devLink = 'https://kalandjl-leanai-api.hf.space/predict'
     const productionLink = "https://leanai.onrender.com/predict"
     if (!process.env.NEXT_PUBLIC_ENV) return
 
     try {
       const imgData = await fileToDataUri(img);
  
-      const response = await fetch(productionLink, {
+      const response = await fetch(devLink, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ data_uri: imgData})
