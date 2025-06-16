@@ -8,17 +8,14 @@ import base64
 import re
 import zipfile
 
-with zipfile.ZipFile('torch_ensemble.pt.zip') as z:
-    with z.open('torch_ensemble.pt') as f:
-        buffer = io.BytesIO(f.read())
-        model = torch.jit.load(buffer)
+model = torch.jit.load('torch_ensemble.pt.')
 
 
 # Load TorchScript model
-with zipfile.ZipFile('torch_ensemble.pt.zip') as z:
-    with z.open('torch_ensemble.pt') as f:
-        buffer = io.BytesIO(f.read())
-        model = torch.jit.load(buffer)
+# with zipfile.ZipFile('torch_ensemble.pt.zip') as z:
+    #with z.open('torch_ensemble.pt') as f:
+        #buffer = io.BytesIO(f.read())
+        #model = torch.jit.load(buffer)
 
 model.eval()
 
