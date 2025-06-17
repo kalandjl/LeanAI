@@ -2,6 +2,8 @@
     "mobilenetv3_large_100": 0.09924083115873755,
     "mobilenetv3_large_100_v2": 0.09924083115873755,
     "mobilenetv3_large_100_v3": 0.09924083115873755,
+    "ghostnetv2_100": 0.9924083115873755,
+    "mobilenetv3_rw": 0.9924083115873755,
     "efficientnet_b3": 0.09637499217291971,
     "efficientnet_b0": 0.09499330977830908,
     "ghostnet_100": 0.09462535008094078,
