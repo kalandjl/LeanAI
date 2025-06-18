@@ -2,7 +2,7 @@
 LeanAI is a machine learning powered web app which aids anyone in achieving their fitness goals. Given a few physique photos and basic metrics (weight, height) LeanAI will predict bf% and give a comprehensive diet plan to achieve desired physique goals. 
 
 ### Hugging Faces Repository:
-(https://huggingface.co/spaces/kalandjl/leanai-gradio/tree/main)
+https://huggingface.co/spaces/kalandjl/leanai-gradio/tree/main
 
 ### Model Architecture
 The core LeanAI model is a pytorch ensemble of 11 different image regression models: 
