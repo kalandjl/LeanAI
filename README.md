@@ -25,5 +25,16 @@ All of these models were trained on public body fat estimation data and varying 
 ### Front end
 Simple Next.JS frontend which access hugging faces repo api. Use bellow commands to run:
 ```
+https://github.com/kalandjl/LeanAI/client
+cd client
+```
+```
 npm run dev
 ```
+
+### Notebooks
+To access my notebooks which I used to train the models, run:
+```
+jupyter notebook
+```
+and navigate to the cloned git repo /core folder.
