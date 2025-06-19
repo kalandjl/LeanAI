@@ -1,17 +1,38 @@
-# LeanAI: My First ML Project     
+# LeanAI: An AI-Powered Body Fat Estimation Tool
+## The Inspiration
+As a long-time weightlifting enthusiast, I've learned that data, not emotion, drives results. A key metric in any fitness journey is body fat percentage, which dictates whether one should focus on building muscle ("bulking") or losing fat ("cutting").
 
-## Inspiration 
-The inspiration for this project came from a personal hobby of mine - weightlifting. Working out has been central to my personal developement in the past few years; but more importantly dieting to lose or gain weight was a practice that required me to build self-accountability and consistency. A key metric to dictate if one should "bulk" or "cut" is body fat % - in simple terms, how much of your body is composed of fat tissue. Given this percentage, one can make their dieting choices in a scientific, numerical manner, as opposed to purley based on emotions or feeling. Being aware of the importance of body fat %, I made my own post in r/guessmybf, where users estimate your body fat based on uploaded physique photos. A few weeks later, I made the decision to start studying machine learning, and spending a week watching videos, I was ready to translate my knowledge into a project; the first thing that came to mind was a model that would predict one's body fat % given a photo. 
+After using communities like Reddit's r/guessmybf to get subjective feedback on my own progress, I saw a unique opportunity. I decided to combine my passion for fitness with my new skills in machine learning to create a tool that could automate this process, providing a data-driven estimate of body fat percentage from a simple physique photo.
 
-## Gathering The Data
+## The Data Journey
+Every machine learning project begins with data, and this one presented a significant challenge right away.
 
-My first approach to culminating a dataset to train the model on was to find medical grade bodyfat measurements online, accompagnied with physique photos. However, after much searching I found that such data existed in limited quanties, far from enough to train a sufficient model. In this moment, I decided to sacrifice the medical-based precision of my model: rather opting to train from human estimates instead of medical body fat scans (DEXA, MRI). Luckily, sourcing such data was much easier, and I already new exactly where to pull it from: reddit. The ethical concerns of training on public data are pertinent in this situation, and my commitment while completing this project was to train the model on the given data in an anonymous and apersonal manner. The dataset was used exclusively for the non-commercial purpose of training this portfolio project model and has not been publicly redistributed. 
+Initial Approach & The Data Scarcity Problem
+My initial goal was to train the model on a "gold standard" dataset: physique photos paired with medical-grade body fat scans (like DEXA or MRI). However, extensive searching revealed that this type of public data is extremely rare and insufficient for training a robust model.
 
-My approach to culminating the data was through the pip package "praw", which allowed for asynchronous API calls to the reddict developer interface. I gathered posts from 2 subreddits: "r/guessmybf", sorted by highest upvoted posts, and "r/bulkorcut", queried by the string "body fat". After gathering all posts, translating them to a trainable .csv file was a hurdle itself. Given the dependent variable - body fat % - was represented by human estimation, I had to make sure the estimations I was using were accurate and serious. At first, I simply queried each posts commment's by any number follow by a percentage symbol (eg. 19%), and then taking the average of all estimates as the dependent variable for that given post. However, I quickly found out the faliability in such a method, as many of these posts consisted of sarcastic or humourous replies that skewed the data massively. To solve this, I fed each post's comment array into OpenAI's ChatGPT 4.1 API, given the following prompt: 
+Pivoting the Data Strategy
+Faced with this data scarcity, I pivoted my strategy. Instead of aiming for medical-grade precision, I decided to build a model that could learn from and replicate the "crowd-sourced wisdom" of experienced fitness communities. The new goal was to train a model on thousands of public physique photos and the corresponding community-estimated body fat percentages.
+
+The data was sourced from two subreddits, r/guessmybf and r/bulkorcut, using a custom Python script with the PRAW (Python Reddit API Wrapper) package for asynchronous API calls.
+
+## Data Cleaning with AI & Prompt Engineering
+A major hurdle was cleaning the comment data. Many comments contained jokes or sarcasm, which skewed simple numerical averaging. To solve this, I engineered a solution using the OpenAI API (GPT-4) to act as an intelligent data filter.
+
+Each post's comment array was passed to the API with a carefully crafted prompt designed to isolate and normalize only the serious estimates:
+
 ```
-"You extract body fat % predictions from a Python array of Reddit comments. "
-"Return an array of the predictions in integer form. Ignore arbitrary numbers. "
-"If the user gives a range (like 12-15%), return the mean. "
-"Output only a valid Python list of integers, like [12, 18, 22]."
+You extract body fat % predictions from a Python array of Reddit comments.
+Return an array of the predictions in integer form. Ignore arbitrary numbers.
+If the user gives a range (like 12-15%), return the mean.
+Output only a valid Python list of integers, like [12, 18, 22].
+This AI-driven cleaning process was instrumental in creating a reliable training dataset from noisy, real-world text.
 ```
-This prompt required testing to get right, but ultimatley resulted in a more accurate and factually based model.
+
+### Ethical Considerations
+Throughout the data collection process, my commitment was to handle public data responsibly. All data was fully anonymized, stripping usernames and any personally identifiable information (PII) before use. The resulting dataset was used exclusively for this non-commercial portfolio project and has not been redistributed.
+
+## The model
+
+Given my little experience with ml models, I decided to use an out of the box framework like fastai to train the image regression models. At first, I used root mean squared error as a loss function, basic augmentation and 20 epochs. Paired with popular models such as Resnet50, I was able to achieve suprisingly good results out of the gate; my best model achieving an RMSE of 9.9. 
+
+In order to optimize the training process, I experimented with different loss functions - root mean cubed error, huber loss, SmoothL1Loss - however, the most simple and effictive was MSE (mean squared error). Besides returning the best results, MSE was easy to understand conceptually, as any model's MSE represented it's average percentage error on any prediction. Working with MSE also gave me a goal for my final model: an average error of 2%.
