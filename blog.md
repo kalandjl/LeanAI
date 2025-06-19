@@ -25,8 +25,9 @@ You extract body fat % predictions from a Python array of Reddit comments.
 Return an array of the predictions in integer form. Ignore arbitrary numbers.
 If the user gives a range (like 12-15%), return the mean.
 Output only a valid Python list of integers, like [12, 18, 22].
-This AI-driven cleaning process was instrumental in creating a reliable training dataset from noisy, real-world text.
 ```
+
+This AI-driven cleaning process was instrumental in creating a reliable training dataset from noisy, real-world text.
 
 ### Ethical Considerations
 Throughout the data collection process, my commitment was to handle public data responsibly. All data was fully anonymized, stripping usernames and any personally identifiable information (PII) before use. The resulting dataset was used exclusively for this non-commercial portfolio project and has not been redistributed.
