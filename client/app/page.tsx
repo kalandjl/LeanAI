@@ -2,6 +2,7 @@
 import React, { useState, useCallback, useRef, ChangeEvent, DragEvent } from 'react';
 import { Upload, Loader2, CheckCircle2, XCircle, ArrowRight } from 'lucide-react';
 import { predictImage } from '@/lib/model';
+import Link from 'next/link';
 
 interface PredictionResult {
   prediction: number;
@@ -172,6 +173,11 @@ const App: React.FC = () => {
 
         <p className="mt-6 text-center text-xs text-zinc-600">
           Powered by a cutting-edge ML model. Results are estimates.
+        </p>
+        <p className="mt-2 text-center text-xs">
+          <Link href="/about" className="text-zinc-400 underline-offset-4 transition hover:text-zinc-100 hover:underline">
+            About this project
+          </Link>
         </p>
       </div>
     </main>
